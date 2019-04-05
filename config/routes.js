@@ -1,11 +1,14 @@
 const axios = require('axios');
-const { authenticate } = require('../auth/authenticate');
-const Users = require('../users/users-model');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+//
+const { authenticate, generateToken } = require('../auth/authenticate');
+const Users = require('../users/users-model');
+
 
 module.exports = server => {
   server.post('/api/register', register);
-  server.post('/api/login', login);
+  server.post('/api/login', login, generateToken);
   server.get('/api/jokes', authenticate, getJokes);
 };
 
@@ -21,8 +24,22 @@ async function register (req, res) {
   }
 }
 
-function login(req, res) {
-  // implement user login
+async function login(req, res) {
+  try {
+    let { username, password } = req.body;
+    const user = await Users.findBy({ username }).first();
+    if (user && bcrypt.compareSync(password, user.password)) {
+      const token = generateToken(user);
+      res.status(200).json({
+        message: `Welcome ${user.username}!`,
+        token
+      });
+    } else {
+      res.status(401).json({ message: "Invalid Credentials" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "error logging in" });
+  }
 }
 
 function getJokes(req, res) {
@@ -39,3 +56,5 @@ function getJokes(req, res) {
       res.status(500).json({ message: 'Error Fetching Jokes', error: err });
     });
 }
+
+
