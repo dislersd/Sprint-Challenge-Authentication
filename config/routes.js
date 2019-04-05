@@ -1,6 +1,6 @@
 const axios = require('axios');
-
 const { authenticate } = require('../auth/authenticate');
+const Users = require('../users/users-model');
 
 module.exports = server => {
   server.post('/api/register', register);
@@ -8,8 +8,13 @@ module.exports = server => {
   server.get('/api/jokes', authenticate, getJokes);
 };
 
-function register(req, res) {
-  // implement user registration
+async function register (req, res) {
+  // try {
+  //   let { username, password } = req.body;
+  //   const user = await 
+  // } catch (error) {
+    
+  // }
 }
 
 function login(req, res) {
